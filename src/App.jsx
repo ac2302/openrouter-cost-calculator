@@ -31,6 +31,10 @@ function App() {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
   });
+  // Mobile sidebar visibility state - start open on mobile devices
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    return window.innerWidth > 768; // Open on desktop, closed on mobile by default
+  });
 
   // IndexedDB state for saved chats
   const [db, setDb] = useState(null);
@@ -76,6 +80,22 @@ function App() {
       localStorage.setItem("theme", "light");
     }
   }, [darkMode]);
+
+  // Handle window resize for responsive sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        // On desktop, always show sidebar
+        setIsSidebarOpen(true);
+      } else if (!isSidebarOpen) {
+        // On mobile, keep it closed if it was closed
+        setIsSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isSidebarOpen]);
 
   // Initialize DB
   useEffect(() => {
@@ -1013,7 +1033,22 @@ function App() {
     <div className="App">
       {showApiKeyModal && <ApiKeyModal />}
 
-      <div className="sidebar">
+      {/* Backdrop overlay for mobile */}
+      {isSidebarOpen && (
+        <div
+          className="sidebar-backdrop mobile-only"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <div className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}>
+        <button
+          className="sidebar-close-btn mobile-only"
+          onClick={() => setIsSidebarOpen(false)}
+        >
+          ✕
+        </button>
         <h2>
           LLM Cost Calculator
           <button
@@ -1125,6 +1160,13 @@ function App() {
 
       <div className="chat-area">
         <div className="chat-info-bar">
+          <button
+            className="sidebar-toggle mobile-only"
+            onClick={() => setIsSidebarOpen(true)}
+            aria-label="Open Sidebar"
+          >
+            ☰
+          </button>
           <div>
             <span>
               {selectedSavedChatId
@@ -1243,9 +1285,9 @@ function App() {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
