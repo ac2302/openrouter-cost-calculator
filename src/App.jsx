@@ -873,25 +873,23 @@ function App() {
   };
 
   const ApiKeyModal = () => (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>Enter Your OpenRouter API Key</h2>
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder="sk-or-..."
-          autoFocus
-        />
-        <div className="modal-buttons">
-          <button onClick={() => setShowApiKeyModal(false)}>Cancel</button>
-          <button
-            onClick={handleSaveApiKey}
-            disabled={!apiKey.trim().startsWith("sk-or-")}
-          >
-            Save Key
-          </button>
-        </div>
+    <div className="modal-content">
+      <h2>Enter Your OpenRouter API Key</h2>
+      <input
+        type="password"
+        value={apiKey}
+        onChange={(e) => setApiKey(e.target.value)}
+        placeholder="sk-or-..."
+        autoFocus
+      />
+      <div className="modal-buttons">
+        <button onClick={() => setShowApiKeyModal(false)}>Cancel</button>
+        <button
+          onClick={handleSaveApiKey}
+          disabled={!apiKey.trim().startsWith("sk-or-")}
+        >
+          Save Key
+        </button>
       </div>
     </div>
   );
@@ -1030,19 +1028,16 @@ function App() {
   };
 
   return (
-    <div className="App">
-      {showApiKeyModal && <ApiKeyModal />}
-
-      {/* Backdrop overlay for mobile */}
-      {isSidebarOpen && (
-        <div
-          className="sidebar-backdrop mobile-only"
-          onClick={() => setIsSidebarOpen(false)}
-          aria-hidden="true"
-        />
+    <div className={`App ${darkMode ? "dark" : ""}`}>
+      {/* Modal for API Key Input */}
+      {showApiKeyModal && (
+        <div className={`modal-overlay ${showApiKeyModal ? "show" : ""}`}>
+          <ApiKeyModal />
+        </div>
       )}
 
-      <div className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}>
+      {/* Sidebar */}
+      <aside className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}>
         <button
           className="sidebar-close-btn mobile-only"
           onClick={() => setIsSidebarOpen(false)}
@@ -1156,7 +1151,15 @@ function App() {
         >
           {selectedSavedChatId ? "Update Chat" : "Save Chat"}
         </button>
-      </div>
+      </aside>
+
+      {/* Sidebar Backdrop for mobile */}
+      {!isSidebarOpen && window.innerWidth <= 768 && (
+        <div
+          className={`sidebar-backdrop ${isSidebarOpen ? "sidebar-open" : ""}`}
+          onClick={() => setIsSidebarOpen(true)}
+        ></div>
+      )}
 
       <div className="chat-area">
         <div className="chat-info-bar">
